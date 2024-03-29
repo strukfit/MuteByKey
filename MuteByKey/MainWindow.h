@@ -2,6 +2,8 @@
 
 #include "MainWindowUI.h"
 #include "AudioManager.h"
+//#include <QxtGlobalShortcut>
+#include <QShortcut>
 
 class MainWindow : public QMainWindow
 {

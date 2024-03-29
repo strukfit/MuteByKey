@@ -1,63 +1,97 @@
 #include "AudioManager.h"
 
-QList<DWORD> AudioManager::getActiveProcesses() {
-    QList<DWORD> activeProcesses;
+AudioManager::~AudioManager()
+{
+    delete enumerator;
+    delete device;
+    delete manager;
+    delete sessionEnumerator;
+    delete volumeControl;
+    delete simpleAudioVolume;
+}
 
-    HRESULT hr;
-    IMMDeviceEnumerator* enumerator = NULL;
-    IMMDevice* device = NULL;
-    IAudioSessionManager2* manager = NULL;
-    IAudioSessionEnumerator* sessionEnumerator = NULL;
-    IAudioEndpointVolume* volumeControl = NULL;
-
-    // Get enumerator for audio devices
-    hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&enumerator));
-    if (FAILED(hr)) goto CleanUp;
-
-    //  Get default audio-rendering device
-    hr = enumerator->GetDefaultAudioEndpoint(EDataFlow::eRender,
-        ERole::eMultimedia, &device);
-    if (FAILED(hr)) goto CleanUp;
-
-    // Get audio session manager
-    hr = device->Activate(__uuidof(IAudioSessionManager2), CLSCTX_INPROC_SERVER, NULL, (void**)&manager);
-    if (FAILED(hr)) goto CleanUp;
-
-    // Get audio session enumerator
-    hr = manager->GetSessionEnumerator(&sessionEnumerator);
-    if (FAILED(hr)) goto CleanUp;
-
-    // Loop through audio sessions
-    int count;
-    hr = sessionEnumerator->GetCount(&count);
-    if (FAILED(hr)) goto CleanUp;
-
-    for (int i = 0; i < count; i++) {
-        IAudioSessionControl* sessionControl1 = NULL;
-        IAudioSessionControl2* sessionControl2 = NULL;
-
-        hr = sessionEnumerator->GetSession(i, &sessionControl1);
-        if (FAILED(hr)) continue;
-
-        hr = sessionControl1->QueryInterface(__uuidof(IAudioSessionControl2), (void**)&sessionControl2);
-        if (FAILED(hr)) continue;
-
-        // Get process ID of the session
-        DWORD sessionId;
-        hr = sessionControl2->GetProcessId(&sessionId);
-        if (FAILED(hr)) continue;
-
-        activeProcesses.append(sessionId);
-
-        sessionControl1->Release();
-        sessionControl2->Release();
-    }
-
-CleanUp:
+void AudioManager::cleanUp()
+{
     if (enumerator) enumerator->Release();
     if (device) device->Release();
     if (manager) manager->Release();
     if (sessionEnumerator) sessionEnumerator->Release();
+}
+
+bool AudioManager::initAudioDevices()
+{
+    // Get enumerator for audio devices
+    hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&enumerator));
+    if (FAILED(hr))
+    {
+        cleanUp();
+        return false;
+    }
+
+    //  Get default audio-rendering device
+    hr = enumerator->GetDefaultAudioEndpoint(EDataFlow::eRender,
+        ERole::eMultimedia, &device);
+    if (FAILED(hr))
+    {
+        cleanUp();
+        return false;
+    }
+
+    // Get audio session manager
+    hr = device->Activate(__uuidof(IAudioSessionManager2), CLSCTX_INPROC_SERVER, NULL, (void**)&manager);
+    if (FAILED(hr))
+    {
+        cleanUp();
+        return false;
+    }
+
+    // Get audio session enumerator
+    hr = manager->GetSessionEnumerator(&sessionEnumerator);
+    if (FAILED(hr))
+    {
+        cleanUp();
+        return false;
+    }
+
+    // Loop through audio sessions
+    hr = sessionEnumerator->GetCount(&count);
+    if (FAILED(hr))
+    {
+        cleanUp();
+        return false;
+    }
+
+    return true;
+}
+
+QList<DWORD> AudioManager::getActiveProcesses() {
+    QList<DWORD> activeProcesses;
+
+    if (initAudioDevices())
+    {
+        for (int i = 0; i < count; i++) {
+            IAudioSessionControl* sessionControl1 = NULL;
+            IAudioSessionControl2* sessionControl2 = NULL;
+
+            hr = sessionEnumerator->GetSession(i, &sessionControl1);
+            if (FAILED(hr)) continue;
+
+            hr = sessionControl1->QueryInterface(__uuidof(IAudioSessionControl2), (void**)&sessionControl2);
+            if (FAILED(hr)) continue;
+
+            // Get process ID of the session
+            DWORD sessionId;
+            hr = sessionControl2->GetProcessId(&sessionId);
+            if (FAILED(hr)) continue;
+
+            activeProcesses.append(sessionId);
+
+            sessionControl1->Release();
+            sessionControl2->Release();
+        }
+    }
+
+    cleanUp();
 
     return activeProcesses;
 }
@@ -123,76 +157,46 @@ QStandardItemModel* AudioManager::getProcessList() {
 }
 
 void AudioManager::setProcessVolume(DWORD processId, float volume) {
-    HRESULT hr;
-    IMMDeviceEnumerator* enumerator = NULL;
-    IMMDevice* device = NULL;
-    IAudioSessionManager2* manager = NULL;
-    IAudioSessionEnumerator* sessionEnumerator = NULL;
-    IAudioEndpointVolume* volumeControl = NULL;
-    ISimpleAudioVolume* simpleAudioVolume = NULL;
 
-    // Get enumerator for audio devices
-    hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&enumerator));
-    if (FAILED(hr)) goto CleanUp;
+    if (initAudioDevices())
+    {
+        for (int i = 0; i < count; i++) {
+            IAudioSessionControl* sessionControl1 = NULL;
+            IAudioSessionControl2* sessionControl2 = NULL;
 
-    //  Get default audio-rendering device
-    hr = enumerator->GetDefaultAudioEndpoint(EDataFlow::eRender,
-        ERole::eMultimedia, &device);
-    if (FAILED(hr)) goto CleanUp;
-
-    // Get audio session manager
-    hr = device->Activate(__uuidof(IAudioSessionManager2), CLSCTX_INPROC_SERVER, NULL, (void**)&manager);
-    if (FAILED(hr)) goto CleanUp;
-
-    // Get audio session enumerator
-    hr = manager->GetSessionEnumerator(&sessionEnumerator);
-    if (FAILED(hr)) goto CleanUp;
-
-    // Loop through audio sessions
-    int count;
-    hr = sessionEnumerator->GetCount(&count);
-    if (FAILED(hr)) goto CleanUp;
-
-    for (int i = 0; i < count; i++) {
-        IAudioSessionControl* sessionControl1 = NULL;
-        IAudioSessionControl2* sessionControl2 = NULL;
-
-        hr = sessionEnumerator->GetSession(i, &sessionControl1);
-        if (FAILED(hr)) continue;
-
-        hr = sessionControl1->QueryInterface(__uuidof(IAudioSessionControl2), (void**)&sessionControl2);
-        if (FAILED(hr)) continue;
-
-        // Get process ID of the session
-        DWORD sessionId;
-        hr = sessionControl2->GetProcessId(&sessionId);
-        if (FAILED(hr)) continue;
-
-        if (sessionId == processId) {
-            hr = sessionControl1->QueryInterface(__uuidof(ISimpleAudioVolume), (void**)&simpleAudioVolume);
+            hr = sessionEnumerator->GetSession(i, &sessionControl1);
             if (FAILED(hr)) continue;
 
-            hr = simpleAudioVolume->SetMasterVolume(volume, NULL);
-            simpleAudioVolume->Release();
+            hr = sessionControl1->QueryInterface(__uuidof(IAudioSessionControl2), (void**)&sessionControl2);
+            if (FAILED(hr)) continue;
 
-            // Если удалось изменить громкость, можно выйти из цикла
-            if (SUCCEEDED(hr)) {
-                sessionControl1->Release();
-                sessionControl2->Release();
-                break;
+            // Get process ID of the session
+            DWORD sessionId;
+            hr = sessionControl2->GetProcessId(&sessionId);
+            if (FAILED(hr)) continue;
+
+            if (sessionId == processId) {
+                hr = sessionControl1->QueryInterface(__uuidof(ISimpleAudioVolume), (void**)&simpleAudioVolume);
+                if (FAILED(hr)) continue;
+
+                hr = simpleAudioVolume->SetMasterVolume(volume, NULL);
+                simpleAudioVolume->Release();
+
+                // Если удалось изменить громкость, можно выйти из цикла
+                if (SUCCEEDED(hr)) {
+                    sessionControl1->Release();
+                    sessionControl2->Release();
+                    break;
+                }
+
+                //QMessageBox::information(nullptr, "", "Failed to set volume level. HRESULT: 0x" + QString::fromWCharArray(error.ErrorMessage()));
+
             }
 
-            //QMessageBox::information(nullptr, "", "Failed to set volume level. HRESULT: 0x" + QString::fromWCharArray(error.ErrorMessage()));
-
+            sessionControl1->Release();
+            sessionControl2->Release();
         }
-
-        sessionControl1->Release();
-        sessionControl2->Release();
     }
-
-CleanUp:
-    if (enumerator) enumerator->Release();
-    if (device) device->Release();
-    if (manager) manager->Release();
-    if (sessionEnumerator) sessionEnumerator->Release();
+    
+    cleanUp();
 }
