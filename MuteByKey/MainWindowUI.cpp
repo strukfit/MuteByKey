@@ -14,6 +14,7 @@ void MainWindowUI::setupMainWindowUI(QMainWindow* MainWindowClass)
     centralWidget = new QWidget(MainWindowClass);
 
     layout = new QVBoxLayout(centralWidget);
+    //layout->setContentsMargins(30, 30, 30, 30);
 
     processView = new QTreeView(centralWidget);
     processView->setWindowTitle(QObject::tr("Process list"));

@@ -2,6 +2,8 @@
 
 float MainWindow::volume;
 
+KeyCombo MainWindow::userDefinedCombo(false, false, false, NULL);
+
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindowClass)
@@ -14,7 +16,9 @@ MainWindow::MainWindow(QWidget* parent) :
 
 	ui->processView->setModel(ui->model);
 
-    volume = ui->volumeSlider->value()/100.f;
+    settingsFile = QApplication::applicationDirPath() + "/settings.ini";
+
+    loadSettings();
 
     QObject::connect(ui->processView->selectionModel(), &QItemSelectionModel::selectionChanged, [&](const QItemSelection& selected) {
         QModelIndexList selectedIndexes = selected.indexes();
@@ -22,7 +26,6 @@ MainWindow::MainWindow(QWidget* parent) :
             QModelIndex selectedIndex = selectedIndexes.at(2); 
             QVariant processData = selectedIndex.data();
             if (processData.isValid()) {
-                // Now you have access to the data associated with the selected row
                 QString processId = processData.toString();
                 selectedProcessId = processId.toInt();
             }
@@ -38,12 +41,14 @@ MainWindow::MainWindow(QWidget* parent) :
         
         volume = value / 100.f;
     });
-
+    
     setHook();
 }
 
 MainWindow::~MainWindow()
 {
+    saveSettings();
+
 	delete ui;
     delete audioManager;
 
@@ -55,8 +60,6 @@ AudioManager* MainWindow::audioManager;
 int MainWindow::selectedProcessId;
 
 HHOOK MainWindow::keyboardHook = NULL;
-
-KeyCombo MainWindow::userDefinedCombo(false, false, false, NULL);
 
 bool MainWindow::shortcutActive = true;
 
@@ -99,6 +102,37 @@ void MainWindow::setHook()
 void MainWindow::removeHook() 
 {
     UnhookWindowsHookEx(keyboardHook);
+}
+
+void MainWindow::loadSettings()
+{
+    QSettings settings(settingsFile, QSettings::IniFormat);
+
+    bool ctrlPressed = settings.value("userDefinedCombo/ctrlPressed", false).toBool();
+    bool shiftPressed = settings.value("userDefinedCombo/shiftPressed", false).toBool();
+    bool altPressed = settings.value("userDefinedCombo/altPressed", false).toBool();
+
+    UINT key = settings.value("userDefinedCombo/key", 0).toInt();
+    QString text = settings.value("changeHotkeyButton/text", "").toString();
+
+    volume = settings.value("volume", 0.f).toFloat();
+    ui->volumeSlider->setValue(volume * 100);
+    ui->volumeSpinBox->setValue(volume * 100);
+
+    userDefinedCombo = KeyCombo(ctrlPressed, shiftPressed, altPressed, key);
+
+    ui->changeHotkeyButton->setText(text);
+}
+
+void MainWindow::saveSettings()
+{   
+    QSettings settings(settingsFile, QSettings::IniFormat);
+    settings.setValue("volume", volume);
+    settings.setValue("userDefinedCombo/ctrlPressed", userDefinedCombo.ctrlPressed);
+    settings.setValue("userDefinedCombo/shiftPressed", userDefinedCombo.shiftPressed);
+    settings.setValue("userDefinedCombo/altPressed", userDefinedCombo.altPressed);
+    settings.setValue("userDefinedCombo/key", userDefinedCombo.key);
+    settings.setValue("changeHotkeyButton/text", ui->changeHotkeyButton->text());
 }
 
 void MainWindow::changeShortcut(bool ctrlPressed, bool shiftPressed, bool altPressed, UINT key, QString title)

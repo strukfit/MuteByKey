@@ -1,5 +1,8 @@
 #pragma once
 
+#include <QSettings>
+#include <QApplication>
+
 #include "MainWindowUI.h"
 #include "AudioManager.h"
 #include "ShortcutWindow.h"
@@ -30,6 +33,11 @@ public:
 	void removeHook();
 
 private:
+	void loadSettings();
+	void saveSettings();
+
+	QString settingsFile;
+
 	Ui::MainWindowClass* ui;
 
 	static AudioManager* audioManager;
