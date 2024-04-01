@@ -2,6 +2,7 @@
 
 #include "MainWindowUI.h"
 #include "AudioManager.h"
+#include "ShortcutWindow.h"
 
 struct KeyCombo {
 	bool ctrlPressed;
@@ -15,6 +16,10 @@ struct KeyCombo {
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
+
+public slots:
+	void openShortcutWindow();
+	void changeShortcut(bool ctrlPressed, bool shiftPressed, bool altPressed, UINT key, QString title);
 
 public:
 	MainWindow(QWidget* parent = nullptr);
@@ -34,4 +39,6 @@ private:
 	static HHOOK keyboardHook;
 
 	static KeyCombo userDefinedCombo;
+
+	static bool shortcutActive;
 };

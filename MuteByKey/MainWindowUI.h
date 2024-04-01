@@ -7,6 +7,7 @@
 #include <QMainWindow>
 #include <QBoxLayout>
 #include <QMessageBox>
+#include <QLabel>
 
 class MainWindowUI
 {
@@ -21,6 +22,9 @@ public:
 	QStandardItemModel* model;
 	QPushButton* upVolumeButton;
 	QPushButton* downVolumeButton;
+	QHBoxLayout* hotkeyLayout;
+	QLabel* hotkeyLabel; 
+	QPushButton* changeHotkeyButton;
 };
 
 namespace Ui

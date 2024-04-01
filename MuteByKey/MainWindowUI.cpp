@@ -27,11 +27,23 @@ void MainWindowUI::setupMainWindowUI(QMainWindow* MainWindowClass)
 
     downVolumeButton = new QPushButton("10%", centralWidget);
 
+    hotkeyLabel = new QLabel("Hotkey", centralWidget);
+
+    changeHotkeyButton = new QPushButton(centralWidget);
+
+    hotkeyLayout = new QHBoxLayout(centralWidget);
+
+    hotkeyLayout->addWidget(hotkeyLabel);
+
+    hotkeyLayout->addWidget(changeHotkeyButton);
+
     layout->addWidget(processView);
 
     layout->addWidget(upVolumeButton);
 
     layout->addWidget(downVolumeButton);
+
+    layout->addLayout(hotkeyLayout);
 
     MainWindowClass->setCentralWidget(centralWidget);
 

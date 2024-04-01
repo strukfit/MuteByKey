@@ -100,12 +100,14 @@
   <ItemGroup>
     <ClCompile Include="AudioManager.cpp" />
     <ClCompile Include="AudioManager.h" />
+    <ClCompile Include="ShortcutWindow.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="MainWindowUI.cpp" />
     <QtMoc Include="MainWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="ShortcutWindow.h" />
     <ClInclude Include="MainWindowUI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
