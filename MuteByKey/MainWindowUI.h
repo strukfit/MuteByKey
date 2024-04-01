@@ -4,10 +4,12 @@
 #include <QtWidgets/QTreeView>
 #include <QtGUI/QStandardItemModel>
 #include <QtWidgets/QPushButton>
-#include <QMainWindow>
-#include <QBoxLayout>
-#include <QMessageBox>
-#include <QLabel>
+#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QBoxLayout>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QSlider>
+#include <QtWidgets/QSpinBox>
 
 class MainWindowUI
 {
@@ -20,11 +22,12 @@ public:
 	QVBoxLayout* layout;
 	QTreeView* processView;
 	QStandardItemModel* model;
-	QPushButton* upVolumeButton;
-	QPushButton* downVolumeButton;
 	QHBoxLayout* hotkeyLayout;
 	QLabel* hotkeyLabel; 
 	QPushButton* changeHotkeyButton;
+	QSlider* volumeSlider;
+	QSpinBox* volumeSpinBox;
+	QHBoxLayout* volumeSliderLayout;
 };
 
 namespace Ui

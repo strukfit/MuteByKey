@@ -32,13 +32,17 @@ public:
 private:
 	Ui::MainWindowClass* ui;
 
-	AudioManager* audioManager;
+	static AudioManager* audioManager;
 
-	int selectedProcessId;
+	static int selectedProcessId;
 
 	static HHOOK keyboardHook;
 
 	static KeyCombo userDefinedCombo;
 
 	static bool shortcutActive;
+
+	static bool volumeDecreased;
+
+	static float volume;
 };

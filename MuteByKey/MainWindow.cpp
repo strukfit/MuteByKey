@@ -1,9 +1,10 @@
 #include "MainWindow.h"
 
+float MainWindow::volume;
+
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
-	ui(new Ui::MainWindowClass),
-    selectedProcessId(NULL)
+	ui(new Ui::MainWindowClass)
 {
 	ui->setupMainWindowUI(this);
 
@@ -12,6 +13,8 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui->model = audioManager->getProcessList();
 
 	ui->processView->setModel(ui->model);
+
+    volume = ui->volumeSlider->value()/100.f;
 
     QObject::connect(ui->processView->selectionModel(), &QItemSelectionModel::selectionChanged, [&](const QItemSelection& selected) {
         QModelIndexList selectedIndexes = selected.indexes();
@@ -26,17 +29,15 @@ MainWindow::MainWindow(QWidget* parent) :
         }
     });
 
-    QObject::connect(ui->upVolumeButton, &QPushButton::clicked, this, [&] {
-        if (selectedProcessId)
-            audioManager->setProcessVolume(static_cast<DWORD>(selectedProcessId), 1.0f);
-    });
-
-    QObject::connect(ui->downVolumeButton, &QPushButton::clicked, this, [&] {
-        if (selectedProcessId)
-            audioManager->setProcessVolume(static_cast<DWORD>(selectedProcessId), 0.1f);
-    });
-
     QObject::connect(ui->changeHotkeyButton, &QPushButton::clicked, this, &MainWindow::openShortcutWindow);
+
+    QObject::connect(ui->volumeSpinBox, &QSpinBox::valueChanged, ui->volumeSlider, &QSlider::setValue);
+
+    QObject::connect(ui->volumeSlider, &QSlider::valueChanged, this, [&](int value) {
+        ui->volumeSpinBox->setValue(value);
+        
+        volume = value / 100.f;
+    });
 
     setHook();
 }
@@ -49,11 +50,17 @@ MainWindow::~MainWindow()
     removeHook();
 }
 
+AudioManager* MainWindow::audioManager;
+
+int MainWindow::selectedProcessId;
+
 HHOOK MainWindow::keyboardHook = NULL;
 
-KeyCombo MainWindow::userDefinedCombo(false, false, false, VK_F2);
+KeyCombo MainWindow::userDefinedCombo(false, false, false, NULL);
 
 bool MainWindow::shortcutActive = true;
+
+bool MainWindow::volumeDecreased = false;
 
 LRESULT CALLBACK MainWindow::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) 
 {
@@ -72,7 +79,10 @@ LRESULT CALLBACK MainWindow::KeyboardProc(int nCode, WPARAM wParam, LPARAM lPara
                     altPressed == userDefinedCombo.altPressed &&
                     pKeyboard->vkCode == userDefinedCombo.key)
                 {
-                    QMessageBox::information(nullptr, "", "Global hotkey pressed");
+                    //QMessageBox::information(nullptr, "", "Global hotkey pressed");
+                    volumeDecreased ? audioManager->setProcessVolume(static_cast<DWORD>(selectedProcessId), 1.0f) : audioManager->setProcessVolume(static_cast<DWORD>(selectedProcessId), volume);
+
+                    volumeDecreased = !volumeDecreased;
                 }
             }
         }

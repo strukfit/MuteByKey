@@ -6,8 +6,7 @@ MainWindowUI::~MainWindowUI()
     delete layout;
     delete processView;
     delete model;
-    delete upVolumeButton;
-    delete downVolumeButton;
+    delete volumeSlider;
 }
 
 void MainWindowUI::setupMainWindowUI(QMainWindow* MainWindowClass)
@@ -16,33 +15,34 @@ void MainWindowUI::setupMainWindowUI(QMainWindow* MainWindowClass)
 
     layout = new QVBoxLayout(centralWidget);
 
-    // Create a widget to display the list of processes
     processView = new QTreeView(centralWidget);
-    
     processView->setWindowTitle(QObject::tr("Process list"));
     processView->setSelectionMode(QAbstractItemView::SingleSelection);
     processView->resize(600, 400);
 
-    upVolumeButton = new QPushButton("100%", centralWidget);
-
-    downVolumeButton = new QPushButton("10%", centralWidget);
-
     hotkeyLabel = new QLabel("Hotkey", centralWidget);
+
+    volumeSliderLayout = new QHBoxLayout(centralWidget);
+
+    volumeSlider = new QSlider(Qt::Horizontal, centralWidget);
+    volumeSlider->setRange(0, 100);
+    volumeSlider->setTickPosition(QSlider::TicksBelow);
+
+    volumeSpinBox = new QSpinBox(centralWidget);
+    volumeSpinBox->setRange(0, 100);
+    volumeSpinBox->setAlignment(Qt::AlignCenter);
+
+    volumeSliderLayout->addWidget(volumeSlider);
+    volumeSliderLayout->addWidget(volumeSpinBox);
 
     changeHotkeyButton = new QPushButton(centralWidget);
 
     hotkeyLayout = new QHBoxLayout(centralWidget);
-
     hotkeyLayout->addWidget(hotkeyLabel);
-
     hotkeyLayout->addWidget(changeHotkeyButton);
 
     layout->addWidget(processView);
-
-    layout->addWidget(upVolumeButton);
-
-    layout->addWidget(downVolumeButton);
-
+    layout->addLayout(volumeSliderLayout);
     layout->addLayout(hotkeyLayout);
 
     MainWindowClass->setCentralWidget(centralWidget);
