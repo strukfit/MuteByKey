@@ -72,15 +72,12 @@ void MainWindowUI::setupMainWindowUI(QMainWindow* MainWindowClass)
 
     hotkeyLayout = new QHBoxLayout(hotkeyWrapper);
     hotkeyLayout->setAlignment(Qt::AlignCenter);
-
-    hotkeyLabel = new QLabel("Hotkey", hotkeyWrapper);
-   
+    
     changeHotkeyButton = new QPushButton(hotkeyWrapper);
     changeHotkeyButton->setFixedHeight(25);
     changeHotkeyButton->setMaximumWidth(150);
     changeHotkeyButton->setStyleSheet("QPushButton { background-color: #0078D7; border: 0; color: white; padding-left: 10px; padding-right: 10px} QPushButton:hover { background-color: #01355e; } QPushButton:pressed { background-color: #035799; }");
 
-    hotkeyLayout->addWidget(hotkeyLabel);
     hotkeyLayout->addWidget(changeHotkeyButton);
 
     layout->addWidget(searchWrapper);

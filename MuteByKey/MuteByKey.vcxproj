@@ -104,9 +104,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="MainWindowUI.cpp" />
+    <ClCompile Include="ShortcutWindowUI.cpp" />
     <QtMoc Include="MainWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="ShortcutWindowUI.h" />
     <QtMoc Include="ShortcutWindow.h" />
     <ClInclude Include="MainWindowUI.h" />
   </ItemGroup>

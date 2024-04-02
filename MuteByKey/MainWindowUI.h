@@ -23,7 +23,6 @@ public:
 	QVBoxLayout* layout;
 	QTreeView* processView;
 	QHBoxLayout* hotkeyLayout;
-	QLabel* hotkeyLabel; 
 	QPushButton* changeHotkeyButton;
 	QSlider* volumeSlider;
 	QSpinBox* volumeSpinBox;

@@ -1,10 +1,9 @@
 #pragma once
 
-#include <QDialog>
-#include <QWidget>
-#include <QLabel>
-#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QDialog>
 #include <QKeyEvent>
+
+#include "ShortcutWindowUI.h"
 
 class ShortcutWindow : public QDialog
 {
@@ -22,7 +21,18 @@ protected:
 	void keyReleaseEvent(QKeyEvent* event) override;
 
 private:
-	QLabel* hotkeyLabel;
+	void ctrlButtonHide();
+	void shiftButtonHide();
+	void altButtonHide();
+	void keyButtonHide();
+
+	Ui::ShortcutWindowClass* ui;
 
 	bool ctrlPressed, shiftPressed, altPressed;
+
+	unsigned int key;
+
+	QString title;
+
+	bool fixed;
 };
