@@ -12,24 +12,23 @@ MainWindow::MainWindow(QWidget* parent) :
 
     audioManager = new AudioManager();
 
-	ui->model = audioManager->getProcessList();
+    QStandardItemModel* model = audioManager->getProcessList();
 
-	ui->processView->setModel(ui->model);
+	ui->processView->setModel(model);
+    ui->processView->setHeaderHidden(true);
+    ui->processView->setColumnHidden(2, true);
+    ui->processView->setColumnWidth(0, 50);
 
     settingsFile = QApplication::applicationDirPath() + "/settings.ini";
 
     loadSettings();
 
-    QObject::connect(ui->processView->selectionModel(), &QItemSelectionModel::selectionChanged, [&](const QItemSelection& selected) {
-        QModelIndexList selectedIndexes = selected.indexes();
-        if (!selectedIndexes.isEmpty()) {
-            QModelIndex selectedIndex = selectedIndexes.at(2); 
-            QVariant processData = selectedIndex.data();
-            if (processData.isValid()) {
-                QString processId = processData.toString();
-                selectedProcessId = processId.toInt();
-            }
-        }
+    connectProcessViewSelection();
+
+    QObject::connect(ui->searchLineEdit, &QLineEdit::textChanged, this, [&](const QString& text) {
+        text.isEmpty() ? ui->searchClearButton->hide() : ui->searchClearButton->show();
+
+        filterTreeView(text);
     });
 
     QObject::connect(ui->changeHotkeyButton, &QPushButton::clicked, this, &MainWindow::openShortcutWindow);
@@ -40,6 +39,19 @@ MainWindow::MainWindow(QWidget* parent) :
         ui->volumeSpinBox->setValue(value);
         
         volume = value / 100.f;
+    });
+
+    QObject::connect(ui->refreshButton, &QPushButton::clicked, this, [&] {
+        ui->searchLineEdit->clear();
+        ui->processView->setModel(audioManager->getProcessList());
+        ui->processView->update();
+
+        connectProcessViewSelection();
+    });
+
+    QObject::connect(ui->searchClearButton, &QPushButton::clicked, this, [&] {
+        ui->searchLineEdit->clear();
+        ui->searchClearButton->hide();
     });
     
     setHook();
@@ -53,6 +65,34 @@ MainWindow::~MainWindow()
     delete audioManager;
 
     removeHook();
+}
+
+void MainWindow::connectProcessViewSelection()
+{
+    QObject::connect(ui->processView->selectionModel(), &QItemSelectionModel::selectionChanged, [&](const QItemSelection& selected) {
+        QModelIndexList selectedIndexes = selected.indexes();
+        if (!selectedIndexes.isEmpty()) {
+            QModelIndex selectedIndex = selectedIndexes.at(2);
+            QVariant processData = selectedIndex.data();
+            if (processData.isValid()) {
+                QString processId = processData.toString();
+                selectedProcessId = processId.toInt();
+            }
+        }
+    });
+}
+
+void MainWindow::filterTreeView(const QString& text)
+{
+    QStandardItemModel* standardModel = qobject_cast<QStandardItemModel*>(ui->processView->model());
+    if (!standardModel)
+        return;
+
+    for (int row = 0; row < standardModel->rowCount(); ++row) {
+        QModelIndex index = standardModel->index(row, 1);
+        bool match = index.data().toString().contains(text, Qt::CaseInsensitive);
+        ui->processView->setRowHidden(row, index.parent(), !match);
+    }
 }
 
 AudioManager* MainWindow::audioManager;

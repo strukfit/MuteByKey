@@ -32,9 +32,14 @@ public:
 	void setHook();
 	void removeHook();
 
+private slots:
+	void filterTreeView(const QString& text);
+
 private:
 	void loadSettings();
 	void saveSettings();
+
+	void connectProcessViewSelection();
 
 	QString settingsFile;
 

@@ -10,6 +10,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QSpinBox>
+#include <QtWidgets/QLineEdit>
 
 class MainWindowUI
 {
@@ -21,13 +22,18 @@ public:
 	QWidget* centralWidget;
 	QVBoxLayout* layout;
 	QTreeView* processView;
-	QStandardItemModel* model;
 	QHBoxLayout* hotkeyLayout;
 	QLabel* hotkeyLabel; 
 	QPushButton* changeHotkeyButton;
 	QSlider* volumeSlider;
 	QSpinBox* volumeSpinBox;
 	QHBoxLayout* volumeSliderLayout;
+	QWidget* searchWrapper;
+	QWidget* hotkeyWrapper;
+	QHBoxLayout* searchLayout;
+	QPushButton* refreshButton;
+	QPushButton* searchClearButton;
+	QLineEdit* searchLineEdit;
 };
 
 namespace Ui
