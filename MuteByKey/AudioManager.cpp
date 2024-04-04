@@ -6,7 +6,6 @@ void AudioManager::cleanUp()
     if (device) device->Release();
     if (manager) manager->Release();
     if (sessionEnumerator) sessionEnumerator->Release();
-    if (simpleAudioVolume) simpleAudioVolume->Release();
 }
 
 bool AudioManager::initAudioDevices()
