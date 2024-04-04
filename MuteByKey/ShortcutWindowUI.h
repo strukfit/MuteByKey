@@ -10,8 +10,6 @@
 class ShortcutWindowUI
 {
 public:
-	~ShortcutWindowUI();
-
 	void setupUI(QDialog* ShortcutWindowClass);
 
 	QVBoxLayout* layout;

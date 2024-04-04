@@ -6,6 +6,8 @@ ShortcutWindow::ShortcutWindow(QWidget* parent):
 	ctrlPressed(false),
 	shiftPressed(false),
 	altPressed(false),
+	key(NULL),
+	title(""),
 	fixed(false)
 {
 	ui->setupUI(this);
@@ -22,6 +24,7 @@ ShortcutWindow::ShortcutWindow(QWidget* parent):
 
 ShortcutWindow::~ShortcutWindow()
 {
+	delete ui;
 }
 
 void ShortcutWindow::keyPressEvent(QKeyEvent* event)

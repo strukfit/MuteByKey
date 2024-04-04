@@ -15,8 +15,6 @@
 class MainWindowUI
 {
 public:
-	~MainWindowUI();
-
 	void setupMainWindowUI(QMainWindow* MainWindowClass);
 
 	QWidget* centralWidget;

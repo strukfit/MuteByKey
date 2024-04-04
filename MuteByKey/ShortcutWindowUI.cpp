@@ -1,9 +1,5 @@
 #include "ShortcutWindowUI.h"
 
-ShortcutWindowUI::~ShortcutWindowUI()
-{
-}
-
 void ShortcutWindowUI::setupUI(QDialog* ShortcutWindowClass)
 {
 	ShortcutWindowClass->setWindowTitle("Change shortcut");

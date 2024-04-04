@@ -1,21 +1,12 @@
 #include "AudioManager.h"
 
-AudioManager::~AudioManager()
-{
-    delete enumerator;
-    delete device;
-    delete manager;
-    delete sessionEnumerator;
-    delete volumeControl;
-    delete simpleAudioVolume;
-}
-
 void AudioManager::cleanUp()
 {
     if (enumerator) enumerator->Release();
     if (device) device->Release();
     if (manager) manager->Release();
     if (sessionEnumerator) sessionEnumerator->Release();
+    if (simpleAudioVolume) simpleAudioVolume->Release();
 }
 
 bool AudioManager::initAudioDevices()

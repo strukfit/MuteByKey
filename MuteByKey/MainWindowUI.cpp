@@ -1,14 +1,5 @@
 #include "MainWindowUI.h"
 
-MainWindowUI::~MainWindowUI()
-{
-    delete centralWidget;
-    delete layout;
-    delete processView;
-    delete volumeSlider;
-    delete refreshButton;
-}
-
 void MainWindowUI::setupMainWindowUI(QMainWindow* MainWindowClass)
 {
     centralWidget = new QWidget(MainWindowClass);
@@ -73,7 +64,7 @@ void MainWindowUI::setupMainWindowUI(QMainWindow* MainWindowClass)
     hotkeyLayout = new QHBoxLayout(hotkeyWrapper);
     hotkeyLayout->setAlignment(Qt::AlignCenter);
     
-    changeHotkeyButton = new QPushButton(hotkeyWrapper);
+    changeHotkeyButton = new QPushButton("Hotkey", hotkeyWrapper);
     changeHotkeyButton->setFixedHeight(25);
     changeHotkeyButton->setMaximumWidth(150);
     changeHotkeyButton->setStyleSheet("QPushButton { background-color: #0078D7; border: 0; color: white; padding-left: 10px; padding-right: 10px} QPushButton:hover { background-color: #01355e; } QPushButton:pressed { background-color: #035799; }");
