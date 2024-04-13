@@ -87,14 +87,14 @@ QList<DWORD> AudioManager::getActiveProcesses() {
 }
 
 QStandardItemModel* AudioManager::getProcessList() {
-    // Создаем модель для списка процессов
+    // Creating a model for a list of processes
     QStandardItemModel* model = new QStandardItemModel();
     model->setColumnCount(3);
     model->setHeaderData(0, Qt::Horizontal, QObject::tr("Icon"));
     model->setHeaderData(1, Qt::Horizontal, QObject::tr("ProcessName"));
     model->setHeaderData(2, Qt::Horizontal, QObject::tr("ProcessId"));
 
-    // Загружаем стандартную иконку приложения
+    // Loading the standard application icon
     HICON hDefaultIcon = LoadIcon(NULL, IDI_APPLICATION);
     QIcon defaultIcon = QIcon(QPixmap::fromImage(QImage::fromHICON(hDefaultIcon)));
 
@@ -104,14 +104,14 @@ QStandardItemModel* AudioManager::getProcessList() {
     {
         QList<QStandardItem*> items;
 
-        // Получаем иконку приложения
+        // Getting the application icon
         HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcessId);
         HICON hIcon = NULL;
 
         QString processName = "UNKNOWN";
 
         if (dwProcessId == 0)
-            processName = "Master Volume";
+            processName = "System sounds";
 
         if (hProcess != NULL) {
             TCHAR szExeFile[MAX_PATH];
@@ -133,7 +133,7 @@ QStandardItemModel* AudioManager::getProcessList() {
 
         QString processId = QString::number(dwProcessId);
 
-        // Создаем элемент для иконки приложения
+        // Creating an element for the application icon
         QStandardItem* iconItem = new QStandardItem();
         iconItem->setIcon(icon);
 
@@ -172,14 +172,11 @@ void AudioManager::setProcessVolume(DWORD processId, float volume) {
                 hr = simpleAudioVolume->SetMasterVolume(volume, NULL);
                 simpleAudioVolume->Release();
 
-                // Если удалось изменить громкость, можно выйти из цикла
                 if (SUCCEEDED(hr)) {
                     sessionControl1->Release();
                     sessionControl2->Release();
                     break;
                 }
-
-                //QMessageBox::information(nullptr, "", "Failed to set volume level. HRESULT: 0x" + QString::fromWCharArray(error.ErrorMessage()));
 
             }
 

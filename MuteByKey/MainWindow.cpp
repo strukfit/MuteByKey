@@ -61,6 +61,8 @@ MainWindow::~MainWindow()
 {
     saveSettings();
 
+    audioManager->setProcessVolume(static_cast<DWORD>(selectedProcessId), 1.0f);
+
 	delete ui;
     delete audioManager;
 
