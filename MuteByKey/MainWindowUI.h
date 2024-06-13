@@ -17,19 +17,15 @@ public:
 	void setupMainWindowUI(QMainWindow* MainWindowClass);
 
 	QWidget* centralWidget;
-	QVBoxLayout* layout;
 	QTreeView* processView;
-	QHBoxLayout* hotkeyLayout;
 	QPushButton* changeHotkeyButton;
 	QSlider* volumeSlider;
 	QSpinBox* volumeSpinBox;
-	QHBoxLayout* volumeSliderLayout;
-	QWidget* searchWrapper;
-	QWidget* hotkeyWrapper;
-	QHBoxLayout* searchLayout;
 	QPushButton* refreshButton;
 	QPushButton* searchClearButton;
 	QLineEdit* searchLineEdit;
+	QLabel* processIcon;
+	QLabel* processName;
 };
 
 namespace Ui

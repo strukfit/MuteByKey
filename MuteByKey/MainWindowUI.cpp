@@ -4,13 +4,12 @@ void MainWindowUI::setupMainWindowUI(QMainWindow* MainWindowClass)
 {
     centralWidget = new QWidget(MainWindowClass);
 
-    layout = new QVBoxLayout(centralWidget);
-    //layout->setContentsMargins(30, 30, 30, 30);
+    auto layout = new QVBoxLayout(centralWidget);
 
-    searchWrapper = new QWidget(centralWidget);
+    auto searchWrapper = new QWidget(centralWidget);
     searchWrapper->setStyleSheet("background-color: white;");
 
-    searchLayout = new QHBoxLayout(searchWrapper);
+    auto searchLayout = new QHBoxLayout(searchWrapper);
     searchLayout->setSpacing(5);
 
     searchLineEdit = new QLineEdit(searchWrapper);
@@ -22,13 +21,13 @@ void MainWindowUI::setupMainWindowUI(QMainWindow* MainWindowClass)
     refreshButton->setFixedSize(QSize(25, 25));
     refreshButton->setIcon(QIcon("refresh.svg"));
     refreshButton->setIconSize(QSize(15, 15));
-    refreshButton->setStyleSheet(" QPushButton { background-color: #0078D7; border: 0; } QPushButton:hover { background-color: #01355e; } QPushButton:pressed { background-color: #035799; }");
+    refreshButton->setStyleSheet("QPushButton { background-color: #0078D7; border: 0; } QPushButton:hover { background-color: #01355e; } QPushButton:pressed { background-color: #035799; }");
 
     searchClearButton = new QPushButton(searchWrapper);
     searchClearButton->setFixedSize(QSize(25, 25));
     searchClearButton->setIcon(QIcon("x.svg"));
     searchClearButton->setIconSize(QSize(19, 19));
-    searchClearButton->setStyleSheet(" QPushButton { background-color: #cccccc; border: 0; } QPushButton:hover { background-color: #9c9c9c; } QPushButton:pressed { background-color: #bababa; }");
+    searchClearButton->setStyleSheet("QPushButton { background-color: #cccccc; border: 0; } QPushButton:hover { background-color: #9c9c9c; } QPushButton:pressed { background-color: #bababa; }");
     searchClearButton->hide();
 
     searchLayout->addWidget(searchLineEdit);
@@ -42,10 +41,24 @@ void MainWindowUI::setupMainWindowUI(QMainWindow* MainWindowClass)
     processView->setStyleSheet("background-color: white; border: 0; padding-top: 20px; padding-bottom: 20px; padding-right: 10px;");
     processView->resize(300, 200);
 
-    QWidget* volumeWrapper = new QWidget(centralWidget);
+    auto processDisplayWrapper = new QWidget(centralWidget);
+    processDisplayWrapper->setStyleSheet("background-color: white;");
+
+    auto processDisplayLayout = new QHBoxLayout(processDisplayWrapper);
+
+    processIcon = new QLabel(processDisplayWrapper);
+    processName = new QLabel(processDisplayWrapper);
+    processName->setStyleSheet("font-size: 14px;");
+
+    processDisplayLayout->addStretch();
+    processDisplayLayout->addWidget(processIcon);
+    processDisplayLayout->addWidget(processName);
+    processDisplayLayout->addStretch();
+
+    auto volumeWrapper = new QWidget(centralWidget);
     volumeWrapper->setStyleSheet("background-color: white;");
 
-    volumeSliderLayout = new QHBoxLayout(volumeWrapper);
+    auto volumeSliderLayout = new QHBoxLayout(volumeWrapper);
 
     volumeSlider = new QSlider(Qt::Horizontal, volumeWrapper);
     volumeSlider->setRange(0, 100);
@@ -58,10 +71,10 @@ void MainWindowUI::setupMainWindowUI(QMainWindow* MainWindowClass)
     volumeSliderLayout->addWidget(volumeSlider);
     volumeSliderLayout->addWidget(volumeSpinBox);
 
-    hotkeyWrapper = new QWidget(centralWidget);
+    auto hotkeyWrapper = new QWidget(centralWidget);
     hotkeyWrapper->setStyleSheet("background-color: white;");
 
-    hotkeyLayout = new QHBoxLayout(hotkeyWrapper);
+    auto hotkeyLayout = new QHBoxLayout(hotkeyWrapper);
     hotkeyLayout->setAlignment(Qt::AlignCenter);
     
     changeHotkeyButton = new QPushButton("Hotkey", hotkeyWrapper);
@@ -73,6 +86,7 @@ void MainWindowUI::setupMainWindowUI(QMainWindow* MainWindowClass)
 
     layout->addWidget(searchWrapper);
     layout->addWidget(processView);
+    layout->addWidget(processDisplayWrapper);
     layout->addWidget(volumeWrapper);
     layout->addWidget(hotkeyWrapper);
 
@@ -80,6 +94,6 @@ void MainWindowUI::setupMainWindowUI(QMainWindow* MainWindowClass)
 
     MainWindowClass->setLayout(layout);
 
-    MainWindowClass->resize(450, 300);
-    MainWindowClass->setMinimumSize(QSize(450, 300));
+    MainWindowClass->resize(450, 307);
+    MainWindowClass->setMinimumSize(QSize(450, 307));
 }

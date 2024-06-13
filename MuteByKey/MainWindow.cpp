@@ -81,11 +81,34 @@ void MainWindow::connectProcessViewSelection()
     QObject::connect(ui->processView->selectionModel(), &QItemSelectionModel::selectionChanged, [&](const QItemSelection& selected) {
         QModelIndexList selectedIndexes = selected.indexes();
         if (!selectedIndexes.isEmpty()) {
+            // Getting process id from selected row
             QModelIndex selectedIndex = selectedIndexes.at(2);
             QVariant processData = selectedIndex.data();
             if (processData.isValid()) {
-                QString processId = processData.toString();
-                selectedProcessId = processId.toInt();
+                int processId = processData.toInt();
+
+                if (processId == 0)
+                    return;
+
+                selectedProcessId = processId;
+            }
+            
+            // Getting process icon from selected row
+            selectedIndex = selectedIndexes.at(0);
+            processData = selectedIndex.data(Qt::DecorationRole);
+            if (processData.isValid())
+                ui->processIcon->setPixmap(processData.value<QIcon>().pixmap(20, 20));
+            
+            // Getting process name from selected row
+            selectedIndex = selectedIndexes.at(1);
+            processData = selectedIndex.data();
+            if (processData.isValid())
+            {
+                QString processPath = processData.toString();
+                int lastIndex = processPath.lastIndexOf('\\');
+                QString processName = processPath.mid(lastIndex + 1);
+                QString formattedProcessName = processName.left(1).toUpper() + processName.mid(1);
+                ui->processName->setText(formattedProcessName);
             }
         }
     });
