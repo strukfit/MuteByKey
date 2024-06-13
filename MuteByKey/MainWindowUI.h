@@ -6,7 +6,6 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QBoxLayout>
-#include <QtWidgets/QMessageBox>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QSpinBox>

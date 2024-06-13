@@ -55,6 +55,7 @@ MainWindow::MainWindow(QWidget* parent) :
     updateTimer = new QTimer(this);
     QObject::connect(updateTimer, &QTimer::timeout, [&] {
         updateProcessView();
+        connectProcessViewSelection();
         if(!ui->searchLineEdit->text().isEmpty())
             filterTreeView(ui->searchLineEdit->text());
     });
@@ -104,13 +105,9 @@ void MainWindow::filterTreeView(const QString& text)
 }
 
 AudioManager* MainWindow::audioManager;
-
 int MainWindow::selectedProcessId;
-
 HHOOK MainWindow::keyboardHook = NULL;
-
 bool MainWindow::shortcutActive = true;
-
 bool MainWindow::volumeDecreased = false;
 
 LRESULT CALLBACK MainWindow::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) 
