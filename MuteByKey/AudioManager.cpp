@@ -117,7 +117,7 @@ QStandardItemModel* AudioManager::getProcessList() {
             TCHAR szExeFile[MAX_PATH];
             if (GetModuleFileNameEx(hProcess, NULL, szExeFile, MAX_PATH)) {
                 hIcon = ExtractIcon(NULL, szExeFile, 0);
-                processName = QString::fromWCharArray(szExeFile);
+                processName = szExeFile;
             }
             CloseHandle(hProcess);
         }

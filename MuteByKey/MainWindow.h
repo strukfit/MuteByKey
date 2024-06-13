@@ -2,6 +2,7 @@
 
 #include <QSettings>
 #include <QApplication>
+#include <QTimer>
 
 #include "MainWindowUI.h"
 #include "AudioManager.h"
@@ -35,27 +36,27 @@ public:
 private slots:
 	void filterTreeView(const QString& text);
 
+protected:
+	void showEvent(QShowEvent* event) override;
+	void hideEvent(QHideEvent* event) override;
+
 private:
 	void loadSettings();
 	void saveSettings();
+	void updateProcessView();
 
 	void connectProcessViewSelection();
 
 	QString settingsFile;
+	QTimer* updateTimer;
 
 	Ui::MainWindowClass* ui;
 
 	static AudioManager* audioManager;
-
 	static int selectedProcessId;
-
 	static HHOOK keyboardHook;
-
 	static KeyCombo userDefinedCombo;
-
 	static bool shortcutActive;
-
 	static bool volumeDecreased;
-
 	static float volume;
 };

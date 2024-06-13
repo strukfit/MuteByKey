@@ -43,9 +43,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
     QObject::connect(ui->refreshButton, &QPushButton::clicked, this, [&] {
         ui->searchLineEdit->clear();
-        ui->processView->setModel(audioManager->getProcessList());
-        ui->processView->update();
-
+        updateProcessView();
         connectProcessViewSelection();
     });
 
@@ -53,6 +51,14 @@ MainWindow::MainWindow(QWidget* parent) :
         ui->searchLineEdit->clear();
         ui->searchClearButton->hide();
     });
+
+    updateTimer = new QTimer(this);
+    QObject::connect(updateTimer, &QTimer::timeout, [&] {
+        updateProcessView();
+        if(!ui->searchLineEdit->text().isEmpty())
+            filterTreeView(ui->searchLineEdit->text());
+    });
+    updateTimer->setInterval(1000);
 
     setHook();
 }
@@ -145,6 +151,18 @@ void MainWindow::removeHook()
     UnhookWindowsHookEx(keyboardHook);
 }
 
+void MainWindow::showEvent(QShowEvent* event)
+{
+    QWidget::showEvent(event);
+    updateTimer->start();
+}
+
+void MainWindow::hideEvent(QHideEvent* event)
+{
+    QWidget::hideEvent(event);
+    updateTimer->stop();
+}
+
 void MainWindow::loadSettings()
 {
     QSettings settings(settingsFile, QSettings::IniFormat);
@@ -174,6 +192,12 @@ void MainWindow::saveSettings()
     settings.setValue("userDefinedCombo/altPressed", userDefinedCombo.altPressed);
     settings.setValue("userDefinedCombo/key", userDefinedCombo.key);
     settings.setValue("changeHotkeyButton/text", ui->changeHotkeyButton->text());
+}
+
+void MainWindow::updateProcessView()
+{
+    ui->processView->setModel(audioManager->getProcessList());
+    ui->processView->update();
 }
 
 void MainWindow::changeShortcut(bool ctrlPressed, bool shiftPressed, bool altPressed, UINT key, QString title)
