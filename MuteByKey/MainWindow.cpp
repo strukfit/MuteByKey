@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
     loadSettings();
 
-    connectProcessViewSelection();
+    setprocessViewConnections();
 
     QObject::connect(ui->searchLineEdit, &QLineEdit::textChanged, this, [&](const QString& text) {
         text.isEmpty() ? ui->searchClearButton->hide() : ui->searchClearButton->show();
@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget* parent) :
     QObject::connect(ui->refreshButton, &QPushButton::clicked, this, [&] {
         ui->searchLineEdit->clear();
         updateProcessView();
-        connectProcessViewSelection();
+        setprocessViewConnections();
     });
 
     QObject::connect(ui->searchClearButton, &QPushButton::clicked, this, [&] {
@@ -55,7 +55,7 @@ MainWindow::MainWindow(QWidget* parent) :
     updateTimer = new QTimer(this);
     QObject::connect(updateTimer, &QTimer::timeout, [&] {
         updateProcessView();
-        connectProcessViewSelection();
+        setprocessViewConnections();
         if(!ui->searchLineEdit->text().isEmpty())
             filterTreeView(ui->searchLineEdit->text());
     });
@@ -76,7 +76,7 @@ MainWindow::~MainWindow()
     removeHook();
 }
 
-void MainWindow::connectProcessViewSelection()
+void MainWindow::setprocessViewConnections()
 {
     QObject::connect(ui->processView->selectionModel(), &QItemSelectionModel::selectionChanged, [&](const QItemSelection& selected) {
         QModelIndexList selectedIndexes = selected.indexes();
@@ -218,6 +218,27 @@ void MainWindow::updateProcessView()
 {
     ui->processView->setModel(audioManager->getProcessList());
     ui->processView->update();
+
+    QStandardItemModel* model = qobject_cast<QStandardItemModel*>(ui->processView->model());
+    if (!model)
+        return;
+
+    for (int row = 0; row < model->rowCount(); ++row)
+    {
+        QModelIndex removedIndex = ui->processView->model()->index(row, 2);
+        QVariant processData = removedIndex.data();
+        if (processData.isValid()) {
+            int processId = processData.toInt();
+
+            if (processId == selectedProcessId)
+            {
+                return;
+            }
+        }
+    }
+
+    ui->processIcon->clear();
+    ui->processName->clear();
 }
 
 void MainWindow::changeShortcut(bool ctrlPressed, bool shiftPressed, bool altPressed, UINT key, QString title)

@@ -45,7 +45,7 @@ private:
 	void saveSettings();
 	void updateProcessView();
 
-	void connectProcessViewSelection();
+	void setprocessViewConnections();
 
 	QString settingsFile;
 	QTimer* updateTimer;
