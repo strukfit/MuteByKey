@@ -215,13 +215,12 @@ void MainWindow::saveSettings()
 }
 
 void MainWindow::updateProcessView()
-{
-    QStandardItemModel* oldModel = qobject_cast<QStandardItemModel*>(ui->processView->model());
+{ 
+    auto oldModel = qobject_cast<QStandardItemModel*>(ui->processView->model());
     if (oldModel)
-        delete oldModel;
+        oldModel->deleteLater();
 
     ui->processView->setModel(audioManager->getProcessList());
-    ui->processView->update();
 
     QStandardItemModel* model = qobject_cast<QStandardItemModel*>(ui->processView->model());
     if (!model)

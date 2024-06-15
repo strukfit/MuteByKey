@@ -2,10 +2,11 @@
 
 void AudioManager::cleanUp()
 {
-    if (enumerator) enumerator->Release();
-    if (device) device->Release();
-    if (manager) manager->Release();
-    if (sessionEnumerator) sessionEnumerator->Release();
+    if (hr) hr = NULL;
+    if (enumerator) enumerator = nullptr;
+    if (device) device = nullptr;
+    if (manager) manager = nullptr;
+    if (sessionEnumerator) sessionEnumerator = nullptr;
 }
 
 bool AudioManager::initAudioDevices()
@@ -18,7 +19,7 @@ bool AudioManager::initAudioDevices()
         return false;
     }
 
-    //  Get default audio-rendering device
+    // Get default audio-rendering device
     hr = enumerator->GetDefaultAudioEndpoint(EDataFlow::eRender,
         ERole::eMultimedia, &device);
     if (FAILED(hr))
@@ -26,7 +27,7 @@ bool AudioManager::initAudioDevices()
         cleanUp();
         return false;
     }
-
+    
     // Get audio session manager
     hr = device->Activate(__uuidof(IAudioSessionManager2), CLSCTX_INPROC_SERVER, NULL, (void**)&manager);
     if (FAILED(hr))
@@ -54,15 +55,35 @@ bool AudioManager::initAudioDevices()
     return true;
 }
 
+AudioManager::AudioManager():
+    hr(NULL),
+    enumerator(nullptr),
+    device(nullptr),
+    manager(nullptr),
+    sessionEnumerator(nullptr),
+    simpleAudioVolume(nullptr),
+    count(NULL)
+{
+}
+
+AudioManager::~AudioManager()
+{
+    if(enumerator) enumerator->Release();
+    if(device) device->Release();
+    if(manager) manager->Release();
+    if(sessionEnumerator) sessionEnumerator->Release();
+    if(simpleAudioVolume) simpleAudioVolume->Release();
+}
+
 QList<DWORD> AudioManager::getActiveProcesses() {
     QList<DWORD> activeProcesses;
 
     if (initAudioDevices())
     {
-        for (int i = 0; i < count; i++) {
-            IAudioSessionControl* sessionControl1 = NULL;
-            IAudioSessionControl2* sessionControl2 = NULL;
+        IAudioSessionControl* sessionControl1 = nullptr;
+        IAudioSessionControl2* sessionControl2 = nullptr;
 
+        for (int i = 0; i < count; i++) {
             hr = sessionEnumerator->GetSession(i, &sessionControl1);
             if (FAILED(hr)) continue;
 
@@ -75,12 +96,11 @@ QList<DWORD> AudioManager::getActiveProcesses() {
             if (FAILED(hr)) continue;
 
             activeProcesses.append(sessionId);
-
-            sessionControl1->Release();
-            sessionControl2->Release();
         }
-    }
 
+        sessionControl1->Release();
+        sessionControl2->Release();
+    }
     cleanUp();
 
     return activeProcesses;
@@ -97,6 +117,7 @@ QStandardItemModel* AudioManager::getProcessList() {
     // Loading the standard application icon
     HICON hDefaultIcon = LoadIcon(NULL, IDI_APPLICATION);
     QIcon defaultIcon = QIcon(QPixmap::fromImage(QImage::fromHICON(hDefaultIcon)));
+    DestroyIcon(hDefaultIcon);
 
     QList<DWORD> list = getActiveProcesses();
 
@@ -150,10 +171,10 @@ void AudioManager::setProcessVolume(DWORD processId, float volume) {
 
     if (initAudioDevices())
     {
-        for (int i = 0; i < count; i++) {
-            IAudioSessionControl* sessionControl1 = NULL;
-            IAudioSessionControl2* sessionControl2 = NULL;
+        IAudioSessionControl* sessionControl1 = nullptr;
+        IAudioSessionControl2* sessionControl2 = nullptr;
 
+        for (int i = 0; i < count; i++) {
             hr = sessionEnumerator->GetSession(i, &sessionControl1);
             if (FAILED(hr)) continue;
 
@@ -165,24 +186,20 @@ void AudioManager::setProcessVolume(DWORD processId, float volume) {
             hr = sessionControl2->GetProcessId(&sessionId);
             if (FAILED(hr)) continue;
 
-            if (sessionId == processId) {
+            if (sessionId == processId) 
+            {
                 hr = sessionControl1->QueryInterface(__uuidof(ISimpleAudioVolume), (void**)&simpleAudioVolume);
                 if (FAILED(hr)) continue;
 
                 hr = simpleAudioVolume->SetMasterVolume(volume, NULL);
                 simpleAudioVolume->Release();
 
-                if (SUCCEEDED(hr)) {
-                    sessionControl1->Release();
-                    sessionControl2->Release();
-                    break;
-                }
-
+                if (SUCCEEDED(hr)) break;
             }
-
-            sessionControl1->Release();
-            sessionControl2->Release();
         }
+
+        sessionControl1->Release();
+        sessionControl2->Release();
     }
     
     cleanUp();
