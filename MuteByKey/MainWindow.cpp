@@ -216,6 +216,10 @@ void MainWindow::saveSettings()
 
 void MainWindow::updateProcessView()
 {
+    QStandardItemModel* oldModel = qobject_cast<QStandardItemModel*>(ui->processView->model());
+    if (oldModel)
+        delete oldModel;
+
     ui->processView->setModel(audioManager->getProcessList());
     ui->processView->update();
 
@@ -229,7 +233,6 @@ void MainWindow::updateProcessView()
         QVariant processData = removedIndex.data();
         if (processData.isValid()) {
             int processId = processData.toInt();
-
             if (processId == selectedProcessId)
             {
                 return;
