@@ -12,9 +12,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
     audioManager = new AudioManager();
 
-    QStandardItemModel* model = audioManager->getProcessList();
-
-	ui->processView->setModel(model);
+	ui->processView->setModel(audioManager->getProcessList());
     ui->processView->setHeaderHidden(true);
     ui->processView->setColumnHidden(2, true);
     ui->processView->setColumnWidth(0, 50);
@@ -218,7 +216,16 @@ void MainWindow::updateProcessView()
 { 
     auto oldModel = qobject_cast<QStandardItemModel*>(ui->processView->model());
     if (oldModel)
-        oldModel->deleteLater();
+    {
+        for (int row = 0; row < oldModel->rowCount(); ++row)
+        {
+            QList<QStandardItem*> items = oldModel->takeRow(row);
+            qDeleteAll(items);
+            items.clear();
+        }
+
+        delete oldModel;
+    }
 
     ui->processView->setModel(audioManager->getProcessList());
 

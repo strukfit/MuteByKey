@@ -2,11 +2,10 @@
 
 void AudioManager::cleanUp()
 {
-    if (hr) hr = NULL;
-    if (enumerator) enumerator = nullptr;
-    if (device) device = nullptr;
-    if (manager) manager = nullptr;
-    if (sessionEnumerator) sessionEnumerator = nullptr;
+    if (enumerator) enumerator->Release();
+    if (device) device->Release();
+    if (manager) manager->Release();
+    if (sessionEnumerator) sessionEnumerator->Release();
 }
 
 bool AudioManager::initAudioDevices()
@@ -83,23 +82,40 @@ QList<DWORD> AudioManager::getActiveProcesses() {
         IAudioSessionControl* sessionControl1 = nullptr;
         IAudioSessionControl2* sessionControl2 = nullptr;
 
+        auto sessionsRelease = [&] {
+            if (sessionControl1) sessionControl1->Release();
+            if (sessionControl2) sessionControl2->Release();
+        };
+
         for (int i = 0; i < count; i++) {
             hr = sessionEnumerator->GetSession(i, &sessionControl1);
-            if (FAILED(hr)) continue;
+            if (FAILED(hr))
+            {
+                sessionsRelease();
+                continue;
+            }
 
             hr = sessionControl1->QueryInterface(__uuidof(IAudioSessionControl2), (void**)&sessionControl2);
-            if (FAILED(hr)) continue;
+            if (FAILED(hr)) 
+            {
+                sessionsRelease();
+                continue;
+            }
 
             // Get process ID of the session
             DWORD sessionId;
             hr = sessionControl2->GetProcessId(&sessionId);
-            if (FAILED(hr)) continue;
+            if (FAILED(hr))
+            {
+                sessionsRelease();
+                continue;
+            }
 
             activeProcesses.append(sessionId);
+            sessionsRelease();
         }
 
-        sessionControl1->Release();
-        sessionControl2->Release();
+        sessionsRelease();
     }
     cleanUp();
 
@@ -119,12 +135,10 @@ QStandardItemModel* AudioManager::getProcessList() {
     QIcon defaultIcon = QIcon(QPixmap::fromImage(QImage::fromHICON(hDefaultIcon)));
     DestroyIcon(hDefaultIcon);
 
-    QList<DWORD> list = getActiveProcesses();
+    QList<DWORD> activeProcesses = getActiveProcesses();
 
-    for (const auto& dwProcessId : list)
+    for (const auto& dwProcessId : activeProcesses)
     {
-        QList<QStandardItem*> items;
-
         // Getting the application icon
         HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcessId);
         HICON hIcon = NULL;
@@ -153,12 +167,9 @@ QStandardItemModel* AudioManager::getProcessList() {
         }
 
         QString processId = QString::number(dwProcessId);
-
-        // Creating an element for the application icon
-        QStandardItem* iconItem = new QStandardItem();
-        iconItem->setIcon(icon);
-
-        items.append(iconItem);
+        
+        QList<QStandardItem*> items;
+        items.append(new QStandardItem(icon, QObject::tr("")));
         items.append(new QStandardItem(processName));
         items.append(new QStandardItem(processId));
         model->appendRow(items);
@@ -174,32 +185,53 @@ void AudioManager::setProcessVolume(DWORD processId, float volume) {
         IAudioSessionControl* sessionControl1 = nullptr;
         IAudioSessionControl2* sessionControl2 = nullptr;
 
+        auto sessionsRelease = [&] {
+            if (sessionControl1) sessionControl1->Release();
+            if (sessionControl2) sessionControl2->Release();
+        };
+
         for (int i = 0; i < count; i++) {
             hr = sessionEnumerator->GetSession(i, &sessionControl1);
-            if (FAILED(hr)) continue;
+            if (FAILED(hr))
+            {
+                sessionsRelease();
+                continue;
+            }
 
             hr = sessionControl1->QueryInterface(__uuidof(IAudioSessionControl2), (void**)&sessionControl2);
-            if (FAILED(hr)) continue;
+            if (FAILED(hr)) 
+            {
+                sessionsRelease();
+                continue;
+            }
 
             // Get process ID of the session
             DWORD sessionId;
             hr = sessionControl2->GetProcessId(&sessionId);
-            if (FAILED(hr)) continue;
+            if (FAILED(hr))
+            {
+                sessionsRelease();
+                continue;
+            }
 
             if (sessionId == processId) 
             {
                 hr = sessionControl1->QueryInterface(__uuidof(ISimpleAudioVolume), (void**)&simpleAudioVolume);
-                if (FAILED(hr)) continue;
+                if (FAILED(hr))
+                {
+                    sessionsRelease();
+                    continue;
+                }
 
                 hr = simpleAudioVolume->SetMasterVolume(volume, NULL);
                 simpleAudioVolume->Release();
+                sessionsRelease();
 
                 if (SUCCEEDED(hr)) break;
             }
         }
 
-        sessionControl1->Release();
-        sessionControl2->Release();
+        sessionsRelease();
     }
     
     cleanUp();
