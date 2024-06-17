@@ -216,16 +216,7 @@ void MainWindow::updateProcessView()
 { 
     auto oldModel = qobject_cast<QStandardItemModel*>(ui->processView->model());
     if (oldModel)
-    {
-        for (int row = 0; row < oldModel->rowCount(); ++row)
-        {
-            QList<QStandardItem*> items = oldModel->takeRow(row);
-            qDeleteAll(items);
-            items.clear();
-        }
-
         delete oldModel;
-    }
 
     ui->processView->setModel(audioManager->getProcessList());
 
